@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"EchoV4/handlers"
+	"EchoV4/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMw "github.com/labstack/echo/v4/middleware" // Alias to avoid conflict
 )
 
 // Custom Validator
@@ -29,14 +30,15 @@ func main() {
 	// Initialize validator
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(middleware.Cors)
+	e.Use(middleware.LoggingMiddleware)
+	e.Use(echoMw.Recover())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Echo V4!")
 	})
 
-	//All user route
+	// All user routes
 	e.POST("/users", handlers.CreateUser)
 	e.GET("/users/:id", handlers.GetUser)
 	e.PUT("/users/:id", handlers.UpdateUser)
